@@ -1,0 +1,95 @@
+
+# Instalação por fase, ex:
+#   pip install -r requirements.txt
+# =============================================================================
+
+
+# -----------------------------------------------------------------------
+# FASE 0 — Chamada única à API (fundamentos)
+# -----------------------------------------------------------------------
+openai>=1.40.0          # cliente da API da OpenAI, com suporte a structured outputs
+pydantic>=2.7.0          # define os schemas de dados (CurriculoExtraido, etc.)
+python-dotenv>=1.0.0     # carrega OPENAI_API_KEY de um arquivo .env em vez de hardcode
+
+
+# -----------------------------------------------------------------------
+# FASE 1-2 — Estado conversacional + primeiro agente com tools
+# -----------------------------------------------------------------------
+# Nenhuma lib nova aqui de propósito -- o objetivo da Fase 1 é sentir a
+# dor de gerenciar estado com Python puro (listas, dicts). Só na Fase 2,
+# quando for migrar pro agente, vem o LangGraph:
+
+langgraph>=0.2.0         # orquestração de grafo/estado (entra só na Fase 2)
+langchain-core>=0.3.0    # tipos base (mensagens, runnables) usados pelo LangGraph
+langchain-openai>=0.2.0  # wrapper ChatOpenAI compatível com LangChain/LangGraph
+
+
+# -----------------------------------------------------------------------
+# FASE 3 — Guardrails e avaliação
+# -----------------------------------------------------------------------
+# Nenhuma lib nova -- guardrail é lógica sua (funções Python simples que
+# inspecionam o texto/tool_traces), não uma biblioteca externa.
+
+
+# -----------------------------------------------------------------------
+# FASE 4 — RAG com Qdrant
+# -----------------------------------------------------------------------
+qdrant-client>=1.11.0    # cliente pra falar com o Qdrant (Docker local ou cloud)
+# Embeddings: você pode usar os da própria OpenAI (já incluso no pacote
+# openai acima, via client.embeddings.create) -- não precisa de lib extra
+# pra isso a menos que queira rodar embeddings localmente:
+# sentence-transformers>=3.0.0   # opcional: embeddings locais, sem custo de API
+
+
+# -----------------------------------------------------------------------
+# FASE 5 — Orquestração completa (LangGraph com múltiplos nós)
+# -----------------------------------------------------------------------
+# Já coberto pelas libs da Fase 2 (langgraph, langchain-core, langchain-openai)
+
+
+# -----------------------------------------------------------------------
+# FASE 6 — Persistência (MongoDB)
+# -----------------------------------------------------------------------
+pymongo>=4.8.0           # driver oficial do MongoDB
+# motor>=3.5.0            # opcional: versão async do pymongo, se seu código for todo async
+
+
+# -----------------------------------------------------------------------
+# FASE 7 — Fila assíncrona e cache (Redis)
+# -----------------------------------------------------------------------
+redis>=5.0.0             # cliente Redis (funciona igual com Valkey, é wire-compatible)
+celery>=5.4.0            # fila de tarefas assíncronas
+# rq>=1.16.0              # alternativa mais simples ao Celery, se preferir começar por aqui
+
+
+# -----------------------------------------------------------------------
+# FASE 8 — API (FastAPI)
+# -----------------------------------------------------------------------
+fastapi>=0.115.0         # framework da API
+uvicorn[standard]>=0.30.0  # servidor ASGI pra rodar o FastAPI
+python-multipart>=0.0.9  # necessário pro FastAPI aceitar upload de arquivo (CV em PDF/DOCX)
+
+
+# -----------------------------------------------------------------------
+# PARSING DE ARQUIVOS — necessário quando parar de colar texto manualmente
+# (na prática, você vai querer isso já perto da Fase 8, quando o usuário
+# começar a mandar arquivo de verdade em vez de texto colado)
+# -----------------------------------------------------------------------
+pypdf>=4.3.0              # extrair texto de PDF
+python-docx>=1.1.0        # extrair texto de DOCX
+# unstructured>=0.15.0     # opcional: parsing mais robusto pra formatos variados/CVs bagunçados
+
+
+# -----------------------------------------------------------------------
+# FASE 10 — Observabilidade e avaliação contínua
+# -----------------------------------------------------------------------
+# Tracing simples pode ser feito com logging da stdlib, sem lib extra.
+# Se quiser algo mais estruturado depois:
+# langsmith>=0.1.100       # opcional: tracing integrado ao ecossistema LangChain
+
+
+# -----------------------------------------------------------------------
+# TESTES (recomendado desde a Fase 2 em diante)
+# -----------------------------------------------------------------------
+pytest>=8.3.0
+pytest-asyncio>=0.24.0    # necessário pra testar funções async (seus nós do grafo)
