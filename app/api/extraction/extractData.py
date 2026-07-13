@@ -4,25 +4,13 @@ import os
 from langchain_openai import ChatOpenAI
 from openai import OpenAI
 from pydantic import BaseModel, Field
+from app.schemas.schemas import CurriculoExtraido
 
 _llm=ChatOpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
     model=os.getenv("OPENAI_MAIN_MODEL"),
     temperature=float(os.getenv("OPENAI_TEMPERATURE")),
 )
-
-class experience(BaseModel):
-    empresa: str
-    cargo: str
-    data_inicio: str = Field(description="Formato AAAA-MM ou AAAA")
-    data_fim: str = Field(description="Null se o emprego for atual")
-
-class CurriculoExtraido(BaseModel):
-    nome: str
-    email: str
-    experiencias: list[experience]
-    skills: list[str]
-    formacao: str
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
