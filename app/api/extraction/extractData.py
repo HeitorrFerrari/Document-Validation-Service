@@ -37,4 +37,20 @@ def extrair_curriculo(cv_texto: str) ->CurriculoExtraido:
               lança erro de validação antes de chegar até você.
     """
 
-    response = _llm
+    response = client.chat.completions.parse(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "Você extrai informações estruturadas de currículos. "
+                    "Extraia APENAS o que está explicitamente no texto — "
+                    "nunca invente datas, empresas ou skills que não "
+                    "aparecem."
+                ),
+            },
+            {"role": "user", "content": cv_texto},
+        ],
+        response_format=CurriculoExtraido,
+    )
+    return response.choices[0].message.parsed
