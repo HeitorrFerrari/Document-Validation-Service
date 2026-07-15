@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 from app.core.config import settings
-from app.schemas.schemas import CurriculoExtraido
+from app.schemas.extracted_resume import CurriculoExtraido
 
 client = OpenAI(api_key=settings.openai_api_key)
 
