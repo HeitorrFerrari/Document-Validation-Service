@@ -1,20 +1,12 @@
-import json
-import os
-
-from langchain_openai import ChatOpenAI
 from openai import OpenAI
-from pydantic import BaseModel, Field
+
+from app.core.config import settings
 from app.schemas.schemas import CurriculoExtraido
 
-_llm=ChatOpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    model=os.getenv("OPENAI_MAIN_MODEL"),
-    temperature=float(os.getenv("OPENAI_TEMPERATURE")),
-)
+client = OpenAI(api_key=settings.openai_api_key)
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def extrair_curriculo(cv_texto: str) ->CurriculoExtraido:
+def extrair_curriculo(cv_texto: str) -> CurriculoExtraido:
     """
     Entrada:  cv_texto (str) -- texto bruto do currículo, já extraído
               de um PDF/DOCX (essa função não faz parsing de arquivo,
@@ -24,9 +16,9 @@ def extrair_curriculo(cv_texto: str) ->CurriculoExtraido:
               Se o LLM tentar devolver algo fora do formato, a lib já
               lança erro de validação antes de chegar até você.
     """
-
     response = client.chat.completions.parse(
-        model="gpt-4o-mini",
+        model=settings.openai_main_model,
+        temperature=settings.openai_temperature,
         messages=[
             {
                 "role": "system",

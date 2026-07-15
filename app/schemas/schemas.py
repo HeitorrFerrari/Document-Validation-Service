@@ -1,15 +1,16 @@
-from pydantic import BaseModel
-from pydantic import Field
+from pydantic import BaseModel, EmailStr, Field
 
-class experience(BaseModel):
+
+class Experience(BaseModel):
     empresa: str
     cargo: str
     data_inicio: str = Field(description="Formato AAAA-MM ou AAAA")
-    data_fim: str = Field(description="Null se o emprego for atual")
+    data_fim: str | None = Field(default=None, description="Null se o emprego for atual")
+
 
 class CurriculoExtraido(BaseModel):
     nome: str
-    email: str
-    experiencias: list[experience]
+    email: EmailStr
+    experiencias: list[Experience]
     skills: list[str]
     formacao: str

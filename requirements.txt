@@ -9,6 +9,7 @@
 # -----------------------------------------------------------------------
 openai>=1.40.0          # cliente da API da OpenAI, com suporte a structured outputs
 pydantic>=2.7.0          # define os schemas de dados (CurriculoExtraido, etc.)
+email-validator>=2.0.0   # necessário pro pydantic.EmailStr validar o campo email
 python-dotenv>=1.0.0     # carrega OPENAI_API_KEY de um arquivo .env em vez de hardcode
 
 
