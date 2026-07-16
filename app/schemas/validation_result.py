@@ -1,9 +1,14 @@
 from pydantic import BaseModel, Field
 
 
+class RequirementScore(BaseModel):
+    requirement: str
+    score: float = Field(ge=0, le=100)
+    detail: str
+
+
 class ValidationResult(BaseModel):
     is_eligible: bool
     score: float = Field(ge=0, le=100)
-    met_requirements: list[str]
-    missing_requirements: list[str]
+    requirement_scores: list[RequirementScore]
     reasoning: str
