@@ -3,7 +3,7 @@ from bson import ObjectId
 from app.db.mongo import db
 from app.schemas.validation_result import ValidationResult
 
-collection = db["validation"]
+collection = db["validations"]
 
 def save_validation_result(validation_result: ValidationResult) -> str:
     validation = collection.insert_one(validation_result.model_dump())
