@@ -9,7 +9,7 @@ from app.guard.guard import check_document_format, check_extracted_text
 from app.schemas.job_requirements import JobRequirements
 
 if __name__ == "__main__":
-    caminho = "docs/Curriculo Heitor - 2026.pdf"
+    caminho = "docs/Curriculo-3.pdf"
     check_document_format(caminho)
     cv_texto = extrair_texto_pdf(caminho)
     check_extracted_text(cv_texto)
