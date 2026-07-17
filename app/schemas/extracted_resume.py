@@ -9,8 +9,8 @@ class Experience(BaseModel):
 
 
 class CurriculoExtraido(BaseModel):
-    nome: str
+    name: str
     email: EmailStr
-    experiencias: list[Experience]
+    experience: list[Experience]
     skills: list[str]
-    formacao: str
+    graduation: str
