@@ -13,3 +13,4 @@ def get_resume(resume_id: str) -> CurriculoExtraido | None:
     if documento is None:
         return None
     documento.pop("_id")
+    return CurriculoExtraido(**documento)
