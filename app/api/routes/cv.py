@@ -17,6 +17,7 @@ from app.extractions.docx.docx_extractor import extrair_texto_docx
 from app.extractions.pdf.pdf_extractor import extrair_texto_pdf
 from app.guard.guard import check_document_format, check_extracted_text
 from app.schemas.job_requirements import JobRequirements
+from fastapi import HTTPException
 
 router = APIRouter(prefix="/cv", tags=["cv"])
 
@@ -44,6 +45,8 @@ async def analyze_cv(file: UploadFile = File(...), job: str = Form(...)):
             extrair_texto_pdf(tmp_path) if tipo == "pdf" else extrair_texto_docx(tmp_path)
         )
         check_extracted_text(texto)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     finally:
         os.remove(tmp_path)
 
