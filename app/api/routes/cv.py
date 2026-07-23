@@ -34,7 +34,7 @@ async def analyze_cv(file: UploadFile = File(...), job: str = Form(...)):
     task = analisar_curriculo_task.delay(tmp_path, job_id)
     return {"task_id": task.id, "job_id": job_id}
 
-@router.get("status/{task_id}")
+@router.get("/status/{task_id}")
 async def get_status(task_id: str):
     resultado = AsyncResult(task_id,app=celery_app)
 
