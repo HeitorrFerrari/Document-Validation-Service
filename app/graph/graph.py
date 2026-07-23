@@ -15,7 +15,7 @@ def validation_node(state: GraphState) -> dict:
     return {"validation": resultado}
 
 def feedback_node(state: GraphState) -> dict:
-    texto = build_feedback(state["validation_text"])
+    texto = build_feedback(state["validation"])
     return {"feedback": texto}
 
 graph = StateGraph(GraphState)
@@ -24,8 +24,8 @@ graph.add_node("validation", validation_node)
 graph.add_node("feedback", feedback_node)
 
 graph.add_edge(START, "extract")
-graph.add_edge("extract", "validate")
-graph.add_edge("validate", "feedback")
+graph.add_edge("extract", "validation")
+graph.add_edge("validation", "feedback")
 graph.add_edge("feedback", END)
 
 app_graph = graph.compile()
