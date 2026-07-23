@@ -10,3 +10,4 @@ class GraphState(TypedDict):
     resume: Optional[CurriculoExtraido]
     validation: Optional[ValidationResult]
     feedback: Optional[str]
+    need_more_infos: Optional[bool]
