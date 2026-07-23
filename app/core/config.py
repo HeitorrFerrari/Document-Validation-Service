@@ -21,6 +21,7 @@ class Settings:
     # Redis / Celery (Fase 7)
     redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     celery_broker_url: str = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+    celery_backend: str = os.getenv("CELERY_BACKEND", "redis://localhost:6379/0")
 
     # Qdrant (Fase 4)
     qdrant_url: str = os.getenv("QDRANT_URL", "http://localhost:6333")

@@ -16,7 +16,7 @@ from app.extractions.pdf.pdf_extractor import extrair_texto_pdf
 from app.guard.guard import check_document_format, check_extracted_text
 from app.schemas.job_requirements import JobRequirements
 
-celery_app = Celery("validador_cv", broker=settings.celery_broker_url)
+celery_app = Celery("validador_cv", broker=settings.celery_broker_url, backend=settings.celery_backend)
 
 @celery_app.task
 def analisar_curriculo_task(caminho_arquivo: str, job_json: str, job_id: str) -> dict:
