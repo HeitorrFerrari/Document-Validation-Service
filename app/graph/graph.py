@@ -24,8 +24,8 @@ graph.add_node("validation", validation_node)
 graph.add_node("feedback", feedback_node)
 
 graph.add_edge(START, "extract")
-graph.add_stage("extract", "validate")
-graph.add_stage("validate", "feedback")
-graph.add_stage("feedback", END)
+graph.add_edge("extract", "validate")
+graph.add_edge("validate", "feedback")
+graph.add_edge("feedback", END)
 
 app_graph = graph.compile()
