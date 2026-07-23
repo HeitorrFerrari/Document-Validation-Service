@@ -1,4 +1,5 @@
-from openai import OpenAI
+from langsmith.wrappers import _openai
+from openai import OpenAI, embeddings
 from qdrant_client.models import Distance, PointStruct, VectorParams, Filter, FieldCondition, MatchValue
 
 from app.rag.qdrant_client import get_qdrant_client, COLLECTION_NAME, VECTOR_SIZE
@@ -36,3 +37,40 @@ def _build_chunks(
         chunks.append(f"Nota final: {validation.score}/100. {validation.reasoning}")
 
         return chunks
+
+
+def ingest_session(
+        session_id: str,
+        resume: CurriculoExtraido,
+        job_requirements: JobRequirements,
+        validation: ValidationResult,
+) -> None:
+    client = get_qdrant_client()
+
+    if not client.collection_exists(COLLECTION_NAME):
+        client.create_collection(
+            COLLECTION_NAME,
+            vectors_config=VectorParams(size=VECTOR_SIZE),
+        )
+
+        textos = _build_chunks(resume, job_requirements, validation)
+        embbeddings = _openai.embeddings.create(model="text-embedding-3-small", input=textos)
+
+        pontos = [
+            PointStruct(
+                id=f"{session_id}-{i}",
+                vector=emb.embedding,
+                payload={"session_id": session_id, "text": texto},
+            )
+            for i, (texto, emb) in enumerate(zip(textos, embeddings.data))
+        ]
+        client.upsert(COLLECTION_NAME, points=pontos)
+
+    def delete_session(session_id: str) -> None:
+        client = get_qdrant_client()
+        client.delete(
+            COLLECTION_NAME,
+            points_selector=Filter(
+                must=[FieldCondition(key="session_id", match=MatchValue(value=session_id))]
+            ),
+        )
