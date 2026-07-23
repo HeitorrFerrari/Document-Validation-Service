@@ -2,7 +2,7 @@
 Tasks assíncronas Celery (Fase 7): análise de CV em background.
 """
 import os
-from fastapi import HTTPException
+
 from celery import Celery
 
 from app.agents.feedback.agent import build_feedback
@@ -30,8 +30,6 @@ def analisar_curriculo_task(caminho_arquivo: str, job_json: str, job_id: str) ->
             else extrair_texto_docx(caminho_arquivo)
         )
         check_extracted_text(texto)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
     finally:
         os.remove(caminho_arquivo)
 
