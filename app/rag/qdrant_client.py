@@ -9,3 +9,4 @@ def get_qdrant_client() -> QdrantClient:
     global _client
     if _client is None:
         _client = QdrantClient(url="http://localhost:6333")
+    return _client
