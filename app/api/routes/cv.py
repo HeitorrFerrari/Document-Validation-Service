@@ -3,7 +3,6 @@ Rotas de currículo (Fase 8): upload de CV, disparo de análise, consulta de res
 """
 import tempfile
 from pathlib import Path
-from
 
 from celery.result import AsyncResult
 from fastapi import APIRouter, File, Form, UploadFile, HTTPException
@@ -32,8 +31,8 @@ async def analyze_cv(file: UploadFile = File(...), job: str = Form(...)):
         tmp.write(await file.read())
         tmp_path = tmp.name
 
-    task = analisar_curriculo_task.delay(tmp_path, job_id, job)
-    return {"task_id": task.id, "job_id": job_id, "job": job}
+    task = analisar_curriculo_task.delay(tmp_path, job, job_id)
+    return {"task_id": task.id, "job": job, "job_id": job_id}
 
 @router.get("/status/{task_id}")
 async def get_status(task_id: str):
@@ -43,4 +42,4 @@ async def get_status(task_id: str):
         raise HTTPException(status_code=400, detail=str(resultado.result))
 
 
-    return {"status": "success", "result": resultado.result}
+    return {"status": resultado.status, "result": resultado.result}
