@@ -3,6 +3,9 @@ Configuração centralizada (Fase 0+).
 Substitui os.getenv espalhado pelos módulos -- toda env var lida aqui.
 """
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class Settings:
