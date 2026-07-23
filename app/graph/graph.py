@@ -18,3 +18,14 @@ def feedback_node(state: GraphState) -> dict:
     texto = build_feedback(state["validation_text"])
     return {"feedback": texto}
 
+graph = StateGraph(GraphState)
+graph.add_node("extract", extract_node)
+graph.add_node("validation", validation_node)
+graph.add_node("feedback", feedback_node)
+
+graph.add_edge(START, "extract")
+graph.add_stage("extract", "validate")
+graph.add_stage("validate", "feedback")
+graph.add_stage("feedback", END)
+
+app_graph = graph.compile()
