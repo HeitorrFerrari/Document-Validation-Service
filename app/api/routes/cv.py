@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 
 from celery.result import AsyncResult
-from fastapi import APIRouter, File, Form, UploadFile, HTTPException
+from fastapi import APIRouter, File, Form, UploadFile
 
 from app.db.repositories.job_repository import save_job
 from app.schemas.job_requirements import JobRequirements
@@ -39,7 +39,6 @@ async def get_status(task_id: str):
     resultado = AsyncResult(task_id,app=celery_app)
 
     if resultado.failed():
-        raise HTTPException(status_code=400, detail=str(resultado.result))
-
+        return {"status": resultado.status, "detail": str(resultado.result)}
 
     return {"status": resultado.status, "result": resultado.result}

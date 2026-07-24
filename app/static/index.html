@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Validador de Currículo</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header>
+  <h1>Validador de Currículo</h1>
+</header>
+
+<main>
+
+  <section class="card" id="analyze-card">
+    <h2>1. Nova análise</h2>
+    <form id="analyze-form">
+      <label>Título da vaga
+        <input type="text" id="title" required placeholder="Desenvolvedor Backend Python">
+      </label>
+
+      <label>Skills obrigatórias (separadas por vírgula)
+        <input type="text" id="required_skills" required placeholder="Python, FastAPI, SQL">
+      </label>
+
+      <label>Skills desejáveis (separadas por vírgula)
+        <input type="text" id="desired_skills" placeholder="Docker, AWS, LangGraph">
+      </label>
+
+      <label>Anos mínimos de experiência
+        <input type="number" id="min_years_experience" min="0" required value="2">
+      </label>
+
+      <label>Formação mínima
+        <input type="text" id="min_education" required placeholder="Superior completo em Ciência da Computação ou áreas afins">
+      </label>
+
+      <label>Currículo (PDF ou DOCX)
+        <input type="file" id="file" accept=".pdf,.docx" required>
+      </label>
+
+      <button type="submit">Analisar</button>
+    </form>
+
+    <div id="analyze-status" class="status hidden"></div>
+  </section>
+
+  <section class="card hidden" id="result-card">
+    <h2>2. Resultado</h2>
+    <div id="result">
+      <div class="score-row">
+        <span class="score-badge" id="score-badge">--</span>
+        <span id="eligible-badge" class="eligible-badge">--</span>
+      </div>
+      <p id="reasoning"></p>
+      <ul id="requirement-scores"></ul>
+      <h3>Feedback</h3>
+      <p id="feedback"></p>
+    </div>
+  </section>
+
+  <section class="card" id="chat-card">
+    <h2>3. Chat sobre o resultado</h2>
+    <label>Session ID
+      <input type="text" id="session-id" placeholder="preenchido automaticamente após a análise">
+    </label>
+    <div id="chat-log"></div>
+    <form id="chat-form">
+      <input type="text" id="question" placeholder="Pergunte sobre a validação..." required>
+      <button type="submit">Enviar</button>
+    </form>
+  </section>
+
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>
