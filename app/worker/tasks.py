@@ -14,6 +14,7 @@ from app.db.repositories.validation_repository import save_validation_result
 from app.extractions.docx.docx_extractor import extrair_texto_docx
 from app.extractions.pdf.pdf_extractor import extrair_texto_pdf
 from app.guard.guard import check_document_format, check_extracted_text
+from app.rag.ingest import ingest_session
 from app.schemas.job_requirements import JobRequirements
 
 celery_app = Celery("validador_cv", broker=settings.celery_broker_url, backend=settings.celery_backend)
@@ -43,10 +44,13 @@ def analisar_curriculo_task(caminho_arquivo: str, job_json: str, job_id: str) ->
 
     feedback = build_feedback(resultado)
 
+    ingest_session(validation_id, resume, job_requirements, resultado)
+
     return {
         "job_id": job_id,
         "resume_id": resume_id,
         "validation_id": validation_id,
+        "session_id": validation_id,
         "resume": resume.model_dump(),
         "validation": resultado.model_dump(),
         "feedback": feedback,
