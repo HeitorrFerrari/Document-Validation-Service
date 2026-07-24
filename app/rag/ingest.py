@@ -3,6 +3,7 @@ import uuid
 from openai import OpenAI
 from qdrant_client.models import Distance, PointStruct, VectorParams, Filter, FieldCondition, MatchValue
 
+from app.core.tracing import trace
 from app.rag.qdrant_client import get_qdrant_client, COLLECTION_NAME, VECTOR_SIZE
 from app.schemas.extracted_resume import CurriculoExtraido
 from app.schemas.job_requirements import JobRequirements
@@ -58,7 +59,16 @@ def ingest_session(
         )
 
     textos = _build_chunks(resume, job_requirements, validation)
+    trace("rag", "chunk", session_id=session_id, chunks=len(textos))
+
     embeddings = _openai.embeddings.create(model="text-embedding-3-small", input=textos)
+    trace(
+        "rag", "embed",
+        session_id=session_id,
+        model="text-embedding-3-small",
+        inputs=len(textos),
+        tokens=embeddings.usage.total_tokens,
+    )
 
     pontos = [
         PointStruct(
