@@ -1,3 +1,5 @@
+import uuid
+
 from openai import OpenAI
 from qdrant_client.models import Distance, PointStruct, VectorParams, Filter, FieldCondition, MatchValue
 
@@ -60,7 +62,7 @@ def ingest_session(
 
     pontos = [
         PointStruct(
-            id=f"{session_id}-{i}",
+            id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"{session_id}-{i}")),
             vector=emb.embedding,
             payload={"session_id": session_id, "text": texto},
         )
