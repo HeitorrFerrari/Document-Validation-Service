@@ -1,14 +1,16 @@
 from openai import OpenAI
 
 from app.core.config import settings
-from app.prompts.base import build_system_prompt
+from app.prompts.base import RH_PERSONA, build_system_prompt
 from app.schemas.validation_result import ValidationResult
 
 client = OpenAI(api_key=settings.openai_api_key)
 
 _SYSTEM_PROMPT = build_system_prompt(
-    "Você explica ao candidato o resultado da avaliação do "
-    "currículo dele para uma vaga, de forma clara e construtiva. "
+    f"{RH_PERSONA} "
+    "Sua função aqui é redigir o texto de feedback que explica ao "
+    "candidato o resultado da avaliação do currículo dele para a vaga, "
+    "de forma clara e construtiva. "
     "Use APENAS as notas e detalhes fornecidos abaixo -- nunca "
     "invente, altere ou presuma informação que não esteja ali."
 )

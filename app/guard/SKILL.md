@@ -19,6 +19,10 @@ texto extraído.
   do zip), nunca pela extensão do nome do arquivo.
 - Texto extraído com menos de 50 caracteres aborta o pipeline (`ValueError`) — evita mandar
   string vazia/curta pro LLM e receber alucinação de volta.
+- Texto extraído acima de `settings.max_text_chars` (default 100k) também aborta — evita estourar
+  contexto/custo com documento que não é um currículo.
+- Mensagens de `ValueError` deste módulo são exibidas ao candidato via `/cv/status` (as demais
+  exceções viram mensagem genérica lá) — escrever sem caminho de arquivo nem detalhe interno.
 
 ## Internal Patterns
 

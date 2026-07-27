@@ -5,8 +5,9 @@ import tempfile
 from pathlib import Path
 
 from celery.result import AsyncResult
-from fastapi import APIRouter, File, Form, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
+from app.core.config import settings
 from app.db.repositories.job_repository import save_job
 from app.schemas.job_requirements import JobRequirements
 from app.worker.tasks import analisar_curriculo_task, celery_app
@@ -24,12 +25,20 @@ async def analyze_cv(file: UploadFile = File(...), job: str = Form(...)):
     de forma assíncrona via Celery. A resposta retorna na hora com o
     `task_id`; o resultado é consultado depois em `/cv/status/{task_id}`.
     """
+    conteudo = await file.read()
+    max_bytes = settings.max_upload_mb * 1024 * 1024
+    if len(conteudo) > max_bytes:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Arquivo excede o limite de {settings.max_upload_mb} MB.",
+        )
+
     job_requirements = JobRequirements.model_validate_json(job)
     job_id = save_job(job_requirements)
 
     suffix = Path(file.filename).suffix
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-        tmp.write(await file.read())
+        tmp.write(conteudo)
         tmp_path = tmp.name
 
     task = analisar_curriculo_task.delay(tmp_path, job, job_id)
@@ -40,6 +49,12 @@ async def get_status(task_id: str):
     resultado = AsyncResult(task_id,app=celery_app)
 
     if resultado.failed():
-        return {"status": resultado.status, "detail": str(resultado.result)}
+        # ValueError vem dos guardrails (formato/texto) e a mensagem é escrita
+        # pro candidato; qualquer outra exceção é interna e não deve vazar.
+        if isinstance(resultado.result, ValueError):
+            detail = str(resultado.result)
+        else:
+            detail = "Erro interno ao processar a análise. Tente novamente mais tarde."
+        return {"status": resultado.status, "detail": detail}
 
     return {"status": resultado.status, "result": resultado.result}

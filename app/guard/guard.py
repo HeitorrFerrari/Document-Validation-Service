@@ -3,6 +3,8 @@ Guardrails de entrada/saída (Fase 3): prompt injection, PII, conteúdo fora do 
 """
 import zipfile
 
+from app.core.config import settings
+
 
 def check_document_format(path: str) -> str:
     """
@@ -21,17 +23,24 @@ def check_document_format(path: str) -> str:
             if "word/document.xml" in arquivo_zip.namelist():
                 return "docx"
 
-    raise ValueError(f"Formato de arquivo não suportado: {path}")
+    raise ValueError("Formato de arquivo não suportado — envie um PDF ou DOCX válido.")
 
 
 def check_extracted_text(text: str, min_length: int = 50) -> None:
     """
-    Garante que a extração produziu texto de verdade antes de mandar pro LLM --
-    evita mandar string vazia/curta (ex.: PDF escaneado sem camada de texto) e
-    receber de volta um resultado alucinado.
+    Garante que a extração produziu texto dentro de limites razoáveis antes de
+    mandar pro LLM -- curto demais (PDF escaneado sem camada de texto) gera
+    resultado alucinado; longo demais (documento que não é um currículo)
+    estoura contexto e custo de token.
     """
     if len(text.strip()) < min_length:
         raise ValueError(
             "Texto extraído insuficiente -- documento pode estar vazio, "
             "corrompido, ou ser um scan sem camada de texto (precisa de OCR)."
+        )
+
+    if len(text) > settings.max_text_chars:
+        raise ValueError(
+            "Documento muito longo para análise -- envie um currículo de "
+            "tamanho convencional."
         )

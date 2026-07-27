@@ -27,5 +27,9 @@ class Settings:
     qdrant_url: str = os.getenv("QDRANT_URL", "http://localhost:6333")
     qdrant_collection: str = os.getenv("QDRANT_COLLECTION", "curriculos")
 
+    # Guardrails (Fase 3)
+    max_upload_mb: int = int(os.getenv("MAX_UPLOAD_MB", "10"))
+    max_text_chars: int = int(os.getenv("MAX_TEXT_CHARS", "100000"))
+
 
 settings = Settings()
