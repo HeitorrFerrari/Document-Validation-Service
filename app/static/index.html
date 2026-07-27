@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validador de Currículo</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Triagem com IA</p>
+        <h1>Validador de Currículo</h1>
+      </div>
+      <div class="topbar-actions" aria-label="Resumo do produto">
+        <span>Upload</span>
+        <span>Análise</span>
+        <span>Feedback</span>
+        <span>Chat</span>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="panel intake-panel" aria-labelledby="analyze-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Nova análise</p>
+            <h2 id="analyze-title">Vaga e currículo</h2>
+          </div>
+          <span class="step-badge">01</span>
+        </div>
+
+        <form id="analyze-form">
+          <label>
+            <span>Título da vaga</span>
+            <input type="text" id="title" required placeholder="Desenvolvedor Backend Python" autocomplete="organization-title">
+          </label>
+
+          <label>
+            <span>Skills obrigatórias</span>
+            <input type="text" id="required_skills" required placeholder="Python, FastAPI, SQL">
+          </label>
+
+          <label>
+            <span>Skills desejáveis</span>
+            <input type="text" id="desired_skills" placeholder="Docker, AWS, LangGraph">
+          </label>
+
+          <div class="form-grid">
+            <label>
+              <span>Anos mínimos</span>
+              <input type="number" id="min_years_experience" min="0" required value="2">
+            </label>
+
+            <label>
+              <span>Formação mínima</span>
+              <input type="text" id="min_education" required placeholder="Superior completo">
+            </label>
+          </div>
+
+          <label class="file-drop" for="file">
+            <input type="file" id="file" accept=".pdf,.docx" required>
+            <span class="file-icon" aria-hidden="true">CV</span>
+            <strong id="file-title">Selecionar currículo</strong>
+            <small id="file-hint">PDF ou DOCX até o limite configurado no servidor</small>
+          </label>
+
+          <button type="submit" id="analyze-button">
+            <span>Analisar currículo</span>
+          </button>
+        </form>
+
+        <div id="analyze-status" class="status hidden" role="status"></div>
+      </section>
+
+      <section class="main-column">
+        <section class="hero-panel" aria-label="Visão geral">
+          <div>
+            <p class="eyebrow">Pipeline</p>
+            <h2>Extração, validação e feedback em uma sessão rastreável.</h2>
+          </div>
+          <div class="metric-strip">
+            <div>
+              <strong id="metric-score">--</strong>
+              <span>Score</span>
+            </div>
+            <div>
+              <strong id="metric-status">Aguardando</strong>
+              <span>Status</span>
+            </div>
+            <div>
+              <strong id="metric-session">--</strong>
+              <span>Sessão</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel hidden" id="result-card" aria-labelledby="result-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Resultado</p>
+              <h2 id="result-title">Parecer da análise</h2>
+            </div>
+            <span id="eligible-badge" class="eligible-badge">--</span>
+          </div>
+
+          <div class="score-layout">
+            <div class="score-ring" aria-label="Score geral">
+              <span id="score-badge">--</span>
+              <small>de 100</small>
+            </div>
+            <div>
+              <h3>Raciocínio</h3>
+              <p id="reasoning" class="muted"></p>
+            </div>
+          </div>
+
+          <div class="result-block">
+            <h3>Critérios avaliados</h3>
+            <ul id="requirement-scores" class="criteria-list"></ul>
+          </div>
+
+          <div class="result-block feedback-block">
+            <h3>Feedback para o candidato</h3>
+            <p id="feedback"></p>
+          </div>
+        </section>
+
+        <section class="panel chat-panel" id="chat-card" aria-labelledby="chat-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Chat contextual</p>
+              <h2 id="chat-title">Pergunte sobre a validação</h2>
+            </div>
+            <span class="step-badge">02</span>
+          </div>
+
+          <label class="session-field">
+            <span>Session ID</span>
+            <input type="text" id="session-id" placeholder="preenchido automaticamente após a análise">
+          </label>
+
+          <div id="chat-log" aria-live="polite">
+            <div class="empty-state">
+              <strong>Nenhuma conversa iniciada</strong>
+              <span>Após a análise, use o chat para entender score, critérios e próximos passos.</span>
+            </div>
+          </div>
+
+          <form id="chat-form">
+            <input type="text" id="question" placeholder="Pergunte sobre a validação..." required>
+            <button type="submit" aria-label="Enviar pergunta">Enviar</button>
+          </form>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
