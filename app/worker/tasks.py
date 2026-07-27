@@ -58,7 +58,10 @@ def analisar_curriculo_task(caminho_arquivo: str, job_json: str, job_id: str) ->
     except Exception as erro:
         trace("judge", "error", validation_id=validation_id, erro=str(erro))
 
-    ingest_session(validation_id, resume, job_requirements, resultado)
+    try:
+        ingest_session(validation_id, resume, job_requirements, resultado)
+    except Exception as erro:
+        trace("rag", "error", validation_id=validation_id, erro=str(erro))
 
     return {
         "job_id": job_id,

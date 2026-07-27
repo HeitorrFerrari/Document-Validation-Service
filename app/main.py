@@ -12,6 +12,18 @@ from app.api.routes import chat, cv
 from app.api.routes.input import requirements
 
 app = FastAPI(title="Validador de Currículo")
+
+
+@app.middleware("http")
+async def disable_static_cache(request, call_next):
+    response = await call_next(request)
+    if request.url.path in {"/", "/style.css", "/app.js", "/favicon.svg"}:
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
+
 app.include_router(requirements.router)
 app.include_router(cv.router)
 app.include_router(chat.router)
