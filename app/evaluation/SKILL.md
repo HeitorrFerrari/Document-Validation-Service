@@ -10,31 +10,42 @@ description: Business rules, internal patterns, and communication contracts for 
 
 ## Responsibility
 
-Harness de avaliação contínua/regressão do pipeline (Fase 10) — **ainda não implementado**.
-Intenção documentada no próprio arquivo: rodar o pipeline (ou partes dele) contra um dataset de
-referência e detectar regressão de qualidade entre mudanças.
+Harness de avaliação contínua/regressão do pipeline (Fase 10): roda `app_graph` contra o dataset
+sintético de referência (`dataset.py`), compara score/elegibilidade com o esperado, e usa
+`app/judge` como segunda checagem de consistência por caso. Serve de baseline antes de qualquer
+ajuste de prompt — mede se mudou pra melhor ou pra pior, em vez de julgar no olho.
 
 ## Business Rules
 
-Nenhuma ainda — nada implementado.
+- Cada `EvalCase` define uma faixa de score esperada (`score_esperado_min/max`), não um valor
+  exato — score de LLM não é determinístico ponto a ponto, mas deve cair numa faixa plausível.
+- Roda como script manual (`python -m app.evaluation.evaluation`), mesmo padrão de
+  `app/tests/graph_tests/test_graph.py` — não é teste de CI, faz chamadas reais à API da OpenAI
+  (6 casos × ~4 chamadas LLM cada: extração, validação, feedback, judge).
 
 ## Internal Patterns
 
 **Structure:**
 ```
 app/evaluation/
-└── evaluation.py   # só docstring, sem código
+├── dataset.py       # EvalCase (dataclass) + DATASET: 6 pares currículo+vaga sintéticos
+└── evaluation.py     # run_evaluation() -> compara app_graph+judge contra o dataset, imprime resumo
 ```
 
 ## Relationships
 
-### Emits / Consumes / Depends On
-Nenhuma ainda.
+### Emits
+Chamadas `trace("eval", ...)`.
+
+### Consumes
+`app_graph.invoke(...)` (`app/graph`), `judge.evaluate(...)` (`app/judge`).
+
+### Depends On
+`app/graph`, `app/judge`, `app/schemas`, `app/core/tracing`.
 
 ## Known Gotchas
 
-Stub vazio. Antes de implementar, decidir a relação com `app/judge/` (ver `app/judge/SKILL.md`):
-`judge` provavelmente é o crítico/scorer LLM-as-judge que roda em cada avaliação individual, e
-`evaluation` é o harness que roda `judge` sobre um conjunto (dataset de currículos+vagas de
-referência) e agrega/compara resultados entre execuções. Precisa de dataset de referência
-(currículo + vaga + resultado esperado) que hoje não existe em lugar nenhum do repo.
+Dataset é sintético (6 casos: match forte, match fraco, match parcial, duas bordas, sem
+experiência) — cobre direção geral, não é golden dataset validado por um recrutador humano de
+verdade. Rodar o harness custa ~24 chamadas de LLM por execução; não rodar em loop automatizado
+sem necessidade.
