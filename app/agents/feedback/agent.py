@@ -1,9 +1,17 @@
 from openai import OpenAI
 
 from app.core.config import settings
+from app.prompts.base import build_system_prompt
 from app.schemas.validation_result import ValidationResult
 
 client = OpenAI(api_key=settings.openai_api_key)
+
+_SYSTEM_PROMPT = build_system_prompt(
+    "Você explica ao candidato o resultado da avaliação do "
+    "currículo dele para uma vaga, de forma clara e construtiva. "
+    "Use APENAS as notas e detalhes fornecidos abaixo -- nunca "
+    "invente, altere ou presuma informação que não esteja ali."
+)
 
 
 def build_feedback(result: ValidationResult) -> str:
@@ -17,15 +25,7 @@ def build_feedback(result: ValidationResult) -> str:
         model=settings.openai_main_model,
         temperature=settings.openai_temperature,
         messages=[
-            {
-                "role": "system",
-                "content": (
-                    "Você explica ao candidato o resultado da avaliação do "
-                    "currículo dele para uma vaga, de forma clara e construtiva. "
-                    "Use APENAS as notas e detalhes fornecidos abaixo -- nunca "
-                    "invente, altere ou presuma informação que não esteja ali."
-                ),
-            },
+            {"role": "system", "content": _SYSTEM_PROMPT},
             {
                 "role": "user",
                 "content": f"Resultado da avaliação:\n{result.model_dump_json()}",

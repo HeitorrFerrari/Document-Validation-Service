@@ -4,7 +4,7 @@ Sem checkpointer -- o histórico (`messages`) vai e volta no corpo da
 requisição, o cliente é responsável por reenviar o que recebeu da resposta
 anterior no próximo request.
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 
 from app.chats.chat_graph import chat_graph
@@ -24,12 +24,16 @@ def _to_chat_message(msg: BaseMessage) -> ChatMessage:
 
 @router.post("/{session_id}", response_model=ChatResponse)
 async def chat(session_id: str, req: ChatRequest):
-    resultado = chat_graph.invoke({
-        "session_id": session_id,
-        "question": req.question,
-        "messages": [_to_lc_message(m) for m in req.messages],
-        "retrieved_context": None,
-    })
+    try:
+        resultado = chat_graph.invoke({
+            "session_id": session_id,
+            "question": req.question,
+            "messages": [_to_lc_message(m) for m in req.messages],
+            "retrieved_context": None,
+            "validation": None,
+        })
+    except ValueError as erro:
+        raise HTTPException(status_code=404, detail=str(erro))
 
     mensagens = [_to_chat_message(m) for m in resultado["messages"]]
     return ChatResponse(answer=mensagens[-1].content, messages=mensagens)

@@ -3,10 +3,30 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph
 
 from app.core.tracing import trace
+from app.db.repositories.validation_repository import get_validation_result
+from app.prompts.base import build_system_prompt
 from app.rag.retriever import retrieve
 from app.chats.chat_state import ChatState
 
 _llm = ChatOpenAI(model="gpt-4o-mini")
+
+_ROLE_INSTRUCTIONS = (
+    "Você explica e debate o resultado da validação de um currículo contra "
+    "uma vaga. A seção 'Resultado da validação' abaixo é o fato central e "
+    "SEMPRE verdadeiro sobre essa sessão -- nunca contradiga a nota ou a "
+    "elegibilidade dela. A seção 'Contexto adicional' traz detalhes por "
+    "critério; use-a pra aprofundar, mas nunca invente nota, critério ou "
+    "detalhe que não esteja em nenhuma das duas seções."
+)
+
+
+def load_session_node(state: ChatState) -> dict:
+    trace("chat", "load_session_node", session_id=state["session_id"])
+    validation = get_validation_result(state["session_id"])
+    if validation is None:
+        raise ValueError(f"Sessão de validação não encontrada: {state['session_id']}")
+    return {"validation": validation}
+
 
 def retrieve_node(state: ChatState) -> dict:
     trace("chat", "retrieve_node", session_id=state["session_id"], question=state["question"])
@@ -15,6 +35,7 @@ def retrieve_node(state: ChatState) -> dict:
 
 
 def generate_node(state: ChatState) -> dict:
+    validation = state["validation"]
     contexto = "\n".join(state["retrieved_context"])
     trace(
         "chat", "generate_node",
@@ -23,10 +44,15 @@ def generate_node(state: ChatState) -> dict:
         history_messages=len(state["messages"]),
     )
 
+    resumo_validacao = (
+        f"Elegível: {validation.is_eligible}. Score geral: {validation.score}/100. "
+        f"Justificativa: {validation.reasoning}"
+    )
     system = SystemMessage(
         content=(
-            "Você explica e debate a nota de validação de um currículo. "
-            f"Use somente este contexto para responder:\n{contexto}"
+            f"{build_system_prompt(_ROLE_INSTRUCTIONS)}\n\n"
+            f"Resultado da validação:\n{resumo_validacao}\n\n"
+            f"Contexto adicional (detalhe por critério):\n{contexto}"
         )
     )
     pergunta = HumanMessage(content=state["question"])
@@ -45,10 +71,12 @@ def generate_node(state: ChatState) -> dict:
 
 
 graph = StateGraph(ChatState)
+graph.add_node("load_session", load_session_node)
 graph.add_node("retrieve", retrieve_node)
 graph.add_node("generate", generate_node)
 
-graph.add_edge(START, "retrieve")
+graph.add_edge(START, "load_session")
+graph.add_edge("load_session", "retrieve")
 graph.add_edge("retrieve", "generate")
 graph.add_edge("generate", END)
 

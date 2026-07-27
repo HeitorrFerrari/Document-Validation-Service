@@ -1,6 +1,8 @@
 from qdrant_client import QdrantClient
 
-COLLECTION_NAME = "cv_chat_session"
+from app.core.config import settings
+
+COLLECTION_NAME = settings.qdrant_collection
 VECTOR_SIZE = 1536 #Embedding pequeno
 
 _client: QdrantClient | None = None
@@ -8,5 +10,5 @@ _client: QdrantClient | None = None
 def get_qdrant_client() -> QdrantClient:
     global _client
     if _client is None:
-        _client = QdrantClient(url="http://localhost:6333")
+        _client = QdrantClient(url=settings.qdrant_url)
     return _client

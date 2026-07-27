@@ -18,10 +18,11 @@ router = APIRouter(prefix="/cv", tags=["cv"])
 async def analyze_cv(file: UploadFile = File(...), job: str = Form(...)):
     """
     Recebe o arquivo do currículo e os requisitos da vaga (JSON como string
-    de formulário) num único request, e roda o pipeline inteiro na hora:
-    valida o arquivo -> extrai o texto -> extrai o currículo estruturado ->
-    valida elegibilidade -> gera feedback. Sem persistência ainda (Fase 6);
-    tudo acontece dentro do mesmo ciclo de requisição.
+    de formulário) num único request, persiste a vaga no Mongo e dispara o
+    pipeline completo (valida arquivo -> extrai texto -> extrai currículo
+    estruturado -> valida elegibilidade -> gera feedback -> judge -> RAG)
+    de forma assíncrona via Celery. A resposta retorna na hora com o
+    `task_id`; o resultado é consultado depois em `/cv/status/{task_id}`.
     """
     job_requirements = JobRequirements.model_validate_json(job)
     job_id = save_job(job_requirements)
