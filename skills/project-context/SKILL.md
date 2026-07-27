@@ -62,6 +62,7 @@ usuário pedir.
 | graph | `app/graph/` | [app/graph/SKILL.md](../../app/graph/SKILL.md) |
 | guard | `app/guard/` | [app/guard/SKILL.md](../../app/guard/SKILL.md) |
 | judge | `app/judge/` | [app/judge/SKILL.md](../../app/judge/SKILL.md) |
+| prompts | `app/prompts/` | [app/prompts/SKILL.md](../../app/prompts/SKILL.md) |
 | rag | `app/rag/` | [app/rag/SKILL.md](../../app/rag/SKILL.md) |
 | schemas | `app/schemas/` | [app/schemas/SKILL.md](../../app/schemas/SKILL.md) |
 | states | `app/states/` | [app/states/SKILL.md](../../app/states/SKILL.md) |
