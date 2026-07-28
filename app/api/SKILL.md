@@ -27,6 +27,7 @@ app/api/
 ├── routes/
 │   ├── cv.py                    # POST /cv/analyze, GET /cv/status/{task_id}
 │   ├── chat.py                   # POST /chat/{session_id}
+│   ├── evaluation.py             # POST /evaluation/run — dispara app/evaluation contra o dataset
 │   └── input/
 │       └── requirements.py       # POST /requirements/ — hoje só ecoa o JobRequirements recebido
 └── extraction/

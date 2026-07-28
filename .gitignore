@@ -3,3 +3,5 @@ README.md
 CLAUDE.md
 
 .env
+
+app/evaluation/results/

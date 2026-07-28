@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from app.api.routes import chat, cv
+from app.api.routes import chat, cv, evaluation
 from app.api.routes.input import requirements
 
 app = FastAPI(title="Validador de Currículo")
@@ -27,4 +27,5 @@ async def disable_static_cache(request, call_next):
 app.include_router(requirements.router)
 app.include_router(cv.router)
 app.include_router(chat.router)
+app.include_router(evaluation.router)
 app.mount("/", StaticFiles(directory="app/static", html=True), name="static")
