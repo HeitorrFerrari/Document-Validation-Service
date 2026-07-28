@@ -2,7 +2,9 @@
 
 Pipeline de IA que recebe um currículo (PDF/DOCX) + os requisitos de uma vaga, extrai os dados do currículo, valida elegibilidade e gera feedback. Projeto de aprendizado, construído por fases (`requirements.txt` documenta cada uma, Fase 0 a Fase 10).
 
-**Status atual:** Fase 8 (API) + Fase 6 (persistência Mongo) + Fase 7 (fila assíncrona Celery/Redis) funcionais e testadas de ponta a ponta. RAG (Fase 4), estado conversacional (Fase 1), agente com tools/LangGraph (Fase 2/3) e avaliação contínua (Fase 10) ainda não implementados — os arquivos existem como stub.
+**Status atual:** pipeline principal funcional e testado de ponta a ponta: `POST /cv/analyze` extrai o currículo, valida elegibilidade, gera feedback, roda um agente juiz (Fase 10, LLM-as-judge) sobre o resultado e persiste tudo no Mongo via fila Celery/Redis.
+
+RAG está conectado: cada análise é indexada no Qdrant ao final da task, e o chat pós-análise (Fase 9, `POST /chat/{session_id}`) usa esse índice pra responder perguntas sobre o resultado — mas é stateless por request (sem checkpointer; o cliente reenvia o histórico a cada chamada). Guardrails (Fase 3) cobrem só formato de arquivo e tamanho de texto extraído — prompt injection e PII ainda não têm checagem própria. Avaliação contínua (Fase 10) tem um dataset dourado e um harness básico (`app/evaluation/`), mas ainda não está em CI.
 
 ## Pré-requisitos
 
@@ -68,7 +70,15 @@ docker run -d --name validador-redis -p 6379:6379 redis:7
 
 Redis serve dois papéis aqui: broker do Celery (carrega a mensagem da task da API pro worker) e result backend (guarda o resultado da task pra `/cv/status/{task_id}` consultar depois).
 
-## 5. Subir o worker Celery
+## 5. Subir o Qdrant (Docker)
+
+```bash
+docker run -d --name validador-qdrant -p 6333:6333 qdrant/qdrant
+```
+
+Usado pelo RAG: cada análise concluída é indexada aqui (`app/rag/ingest.py`) e consultada pelo chat pós-análise (`app/rag/retriever.py`). Se o Qdrant não estiver no ar, a análise principal e o chat continuam funcionando (elegibilidade/score vêm do Mongo) — só o contexto extra por critério fica indisponível.
+
+## 6. Subir o worker Celery
 
 Processo separado da API, terminal à parte:
 
@@ -80,7 +90,7 @@ Confere no banner de inicialização se aparece `results: redis://localhost:6379
 
 ⚠️ **Atenção:** ao contrário do `uvicorn --reload`, o worker Celery **não recarrega código automaticamente**. Toda vez que mexer em `app/worker/tasks.py` (ou em qualquer módulo que ele importa: extractors, agentes, schemas), precisa `Ctrl+C` e subir o worker de novo.
 
-## 6. Subir a API
+## 7. Subir a API
 
 ```bash
 uvicorn app.main:app --reload
@@ -88,7 +98,7 @@ uvicorn app.main:app --reload
 
 API sobe em `http://localhost:8000`.
 
-## 7. Testar o pipeline completo
+## 8. Testar o pipeline completo
 
 O fluxo agora é assíncrono, em dois passos.
 
@@ -131,9 +141,19 @@ curl http://localhost:8000/cv/status/<task_id>
 
 Repete até `status` sair de `PENDING`/`STARTED` pra `SUCCESS` (ou `FAILURE`, com o motivo em `detail`). Quando `SUCCESS`, o `result` traz `job_id`, `resume_id`, `validation_id` (ids persistidos no Mongo) junto com `resume`, `validation` e `feedback`.
 
-Pra conferir que persistiu de verdade, abre o Compass ou roda o script de teste e olha as coleções `jobs`, `resumes`, `validations`.
+Pra conferir que persistiu de verdade, abre o Compass ou roda o script de teste e olha as coleções `jobs`, `resumes`, `validations` (e `judgements`, com a auditoria do agente juiz sobre esse resultado).
 
-## 8. Rodar os testes
+**c) Conversar sobre o resultado** — `POST /chat/{session_id}`, usando o `validation_id` retornado no passo anterior como `session_id`:
+
+```bash
+curl -X POST http://localhost:8000/chat/<validation_id> \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Por que fui reprovado?", "messages": []}'
+```
+
+A resposta traz `answer` e a lista `messages` atualizada — reenvia essa lista no campo `messages` da próxima pergunta pra manter o histórico da conversa (não há checkpointer no servidor, o cliente é responsável por isso).
+
+## 9. Rodar os testes
 
 ```bash
 pytest app/tests
