@@ -22,6 +22,12 @@ sessão de validação já processada.
   deixa o LLM alucinar contexto pra sessão inexistente).
 - Sem checkpointer: o histórico completo (`messages`) vai e volta no corpo da requisição — o
   cliente (frontend) é responsável por reenviar o que recebeu na resposta anterior.
+- `generate_node` faz bind de tools conversacionais (`app/chats/tools.py`) no LLM. Cada tool
+  cobre uma pergunta provável (nota geral, elegibilidade, pontos fortes/fracos, orientação,
+  critério específico) e devolve um texto PRONTO, não gerado pelo LLM — o prompt instrui o modelo
+  a só encaixar o texto da tool, não reescrever. É assim que a resposta fica consistente entre
+  sessões em vez de variar "tom de IA" a cada pergunta parecida. Loop de tool-calling limitado a
+  uma rodada (não é ReAct de propósito aberto).
 
 ## Internal Patterns
 
@@ -29,7 +35,8 @@ sessão de validação já processada.
 ```
 app/chats/
 ├── chat_state.py   # ChatState TypedDict: session_id, question, messages, retrieved_context, validation
-└── chat_graph.py    # load_session_node -> retrieve_node -> generate_node, compilado como chat_graph
+├── tools.py          # build_conversational_tools(validation) -> tools com texto pré-escrito por categoria
+└── chat_graph.py    # load_session_node -> retrieve_node -> generate_node (com tools), compilado como chat_graph
 ```
 
 **Key abstractions:** único lugar do código que usa `ChatOpenAI` (wrapper LangChain) em vez do SDK

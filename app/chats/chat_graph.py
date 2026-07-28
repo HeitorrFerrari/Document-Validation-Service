@@ -1,7 +1,8 @@
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, ToolMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph
 
+from app.chats.tools import build_conversational_tools
 from app.core.config import settings
 from app.core.tracing import trace
 from app.db.repositories.validation_repository import get_validation_result
@@ -19,7 +20,15 @@ _ROLE_INSTRUCTIONS = (
     "abaixo é o fato central e SEMPRE verdadeiro sobre essa sessão -- nunca "
     "contradiga a nota ou a elegibilidade dela. A seção 'Contexto adicional' "
     "traz detalhes por critério; use-a pra aprofundar, mas nunca invente "
-    "nota, critério ou detalhe que não esteja em nenhuma das duas seções."
+    "nota, critério ou detalhe que não esteja em nenhuma das duas seções. "
+    "Você tem ferramentas que cobrem as perguntas mais prováveis do "
+    "candidato (nota geral, elegibilidade, pontos fortes, pontos a "
+    "melhorar, orientação, critério específico). Quando a pergunta se "
+    "encaixar claramente em uma delas, chame a ferramenta e apresente o "
+    "texto que ela retorna de forma direta, com no máximo uma frase de "
+    "transição -- não reescreva nem resuma o conteúdo da ferramenta. Só "
+    "responda livremente, sem ferramenta, quando a pergunta não se encaixar "
+    "em nenhuma delas."
 )
 
 
@@ -44,6 +53,17 @@ def retrieve_node(state: ChatState) -> dict:
     return {"retrieved_context": chunks}
 
 
+def _trace_uso(resposta) -> None:
+    uso = resposta.usage_metadata or {}
+    trace(
+        "llm", "usage",
+        model=settings.openai_main_model,
+        input_tokens=uso.get("input_tokens"),
+        output_tokens=uso.get("output_tokens"),
+        total_tokens=uso.get("total_tokens"),
+    )
+
+
 def generate_node(state: ChatState) -> dict:
     validation = state["validation"]
     contexto = "\n".join(state["retrieved_context"]) or "(detalhes por critério indisponíveis no momento)"
@@ -66,16 +86,28 @@ def generate_node(state: ChatState) -> dict:
         )
     )
     pergunta = HumanMessage(content=state["question"])
-    resposta = _llm.invoke([system, *state["messages"], pergunta])
 
-    uso = resposta.usage_metadata or {}
-    trace(
-        "llm", "usage",
-        model=settings.openai_main_model,
-        input_tokens=uso.get("input_tokens"),
-        output_tokens=uso.get("output_tokens"),
-        total_tokens=uso.get("total_tokens"),
-    )
+    tools = build_conversational_tools(validation)
+    ferramentas_por_nome = {t.name: t for t in tools}
+    llm_com_tools = _llm.bind_tools(tools)
+
+    historico = [system, *state["messages"], pergunta]
+    resposta = llm_com_tools.invoke(historico)
+    _trace_uso(resposta)
+
+    # Loop de tool-calling limitado a uma rodada: as tools cobrem perguntas
+    # pontuais (nota, elegibilidade, pontos fortes/fracos, orientação,
+    # critério específico), não é um agente ReAct de propósito aberto.
+    if resposta.tool_calls:
+        mensagens_tool = []
+        for chamada in resposta.tool_calls:
+            trace("chat", "tool_call", tool=chamada["name"], args=chamada["args"])
+            ferramenta = ferramentas_por_nome.get(chamada["name"])
+            resultado_tool = ferramenta.invoke(chamada["args"]) if ferramenta else ""
+            mensagens_tool.append(ToolMessage(content=resultado_tool, tool_call_id=chamada["id"]))
+
+        resposta = llm_com_tools.invoke([*historico, resposta, *mensagens_tool])
+        _trace_uso(resposta)
 
     return {"messages": state["messages"] + [pergunta, AIMessage(content=resposta.content)]}
 

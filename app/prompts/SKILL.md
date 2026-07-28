@@ -21,7 +21,9 @@ Existe pra padronizar o que cada `agent.py` escreve, em vez de cada um reinventa
 - `SCOPE_GUARD` é opt-in (`include_scope_guard=False` por padrão) — só faz sentido em contexto
   conversacional livre (o chat). Extração/validator/feedback são single-shot, não precisam.
 - `RH_PERSONA` é usado pelos dois pontos que falam diretamente com o candidato (`app/chats`,
-  `app/agents/feedback`) — linguagem formal, sem jargão técnico, sem prometer revisão de nota.
+  `app/agents/feedback`) — linguagem formal, sem jargão técnico, sem prometer revisão de nota, e
+  com regras de estilo explícitas (frases banidas, sem exclamação, resposta direta sem preâmbulo)
+  pra reduzir "cara de IA genérica" nas respostas.
 
 ## Internal Patterns
 
