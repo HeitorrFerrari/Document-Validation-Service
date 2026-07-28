@@ -13,7 +13,7 @@ from app.db.repositories.validation_repository import save_validation_result
 from app.extractions.docx.docx_extractor import extrair_texto_docx
 from app.extractions.pdf.pdf_extractor import extrair_texto_pdf
 from app.graph.graph import app_graph
-from app.guard.guard import check_document_format, check_extracted_text
+from app.guard.guard import check_document_format, check_extracted_text, check_prompt_injection
 from app.judge.judge import evaluate as judge_evaluate
 from app.rag.ingest import ingest_session
 from app.schemas.job_requirements import JobRequirements
@@ -32,6 +32,7 @@ def analisar_curriculo_task(caminho_arquivo: str, job_json: str, job_id: str) ->
             else extrair_texto_docx(caminho_arquivo)
         )
         check_extracted_text(texto)
+        check_prompt_injection(texto)
     finally:
         os.remove(caminho_arquivo)
 

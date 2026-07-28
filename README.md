@@ -37,8 +37,9 @@ o cliente dispara a análise, recebe um `task_id` na hora e consulta o resultado
 
 - O chat não tem memória no servidor: o histórico da conversa vai e volta no corpo da requisição,
   o cliente é responsável por reenviar as mensagens anteriores.
-- Guardrails cobrem só formato de arquivo e tamanho do texto extraído — não há checagem dedicada
-  de prompt injection ou PII.
+- Guardrails cobrem formato de arquivo, tamanho do texto extraído e uma varredura regex simples
+  contra prompt injection óbvio — não é uma defesa robusta (sem classificador, sem sanitização),
+  e PII ainda não tem checagem própria.
 - A task do worker é atômica: se o processo cair no meio, o reprocessamento é do zero (via retry
   da fila), não há retomada por etapa.
 - O harness de avaliação contínua ainda roda manualmente, não está integrado a CI.

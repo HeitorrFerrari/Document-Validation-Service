@@ -1,9 +1,46 @@
 """
-Guardrails de entrada/saída (Fase 3): prompt injection, PII, conteúdo fora do escopo.
+Guardrails de entrada (Fase 3): formato de arquivo, qualidade do texto extraído e
+detecção simples de prompt injection via regex.
 """
+import re
 import zipfile
 
 from app.core.config import settings
+
+_PADROES_PROMPT_INJECTION = [
+    r"ignor[ae]\s+(todas?\s+)?(as\s+)?instru[çc][õo]es\s+(anteriores|acima)",
+    r"desconsidere\s+(as\s+)?instru[çc][õo]es\s+(anteriores|acima)",
+    r"esque[çc]a\s+(suas\s+|as\s+)?instru[çc][õo]es",
+    r"ignore\s+(all\s+)?(previous|prior|the above)\s+instructions",
+    r"disregard\s+(all\s+)?(previous|prior)\s+instructions",
+    r"forget\s+(your\s+|all\s+)?(previous\s+)?instructions",
+    r"you\s+are\s+now\s+",
+    r"aja\s+como\s+(se\s+)?(voc[êe]\s+)?(fosse|é)",
+    r"act\s+as\s+(if\s+you\s+are|a[n]?)\s+",
+    r"system\s*prompt",
+    r"modo\s+desenvolvedor",
+    r"developer\s+mode",
+    r"\bDAN\b",
+    r"d[êe]\s+nota\s+(m[aá]xima|100)",
+    r"aprovad[oa]\s+automaticamente",
+    r"score\s*[:=]?\s*100",
+]
+
+
+def check_prompt_injection(text: str) -> None:
+    """
+    Varredura simples por regex atrás de frases típicas de tentativa de
+    manipular o agente (ex.: "ignore as instruções anteriores", "dê nota
+    máxima"). Não é uma defesa robusta -- é heurística de portfólio, não
+    substitui um classificador dedicado ou sanitização em produção real.
+    """
+    texto_lower = text.lower()
+    for padrao in _PADROES_PROMPT_INJECTION:
+        if re.search(padrao, texto_lower):
+            raise ValueError(
+                "Texto do currículo contém trechos suspeitos de tentativa de "
+                "manipular a avaliação -- revise o conteúdo e reenvie."
+            )
 
 
 def check_document_format(path: str) -> str:
