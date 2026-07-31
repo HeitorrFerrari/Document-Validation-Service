@@ -6,6 +6,7 @@ import re
 import zipfile
 
 from app.core.config import settings
+from app.core.tracing import trace
 
 _PADROES_PROMPT_INJECTION = [
     r"ignor[ae]\s+(todas?\s+)?(as\s+)?instru[çc][õo]es\s+(anteriores|acima)",
@@ -36,7 +37,13 @@ def check_prompt_injection(text: str) -> None:
     """
     texto_lower = text.lower()
     for padrao in _PADROES_PROMPT_INJECTION:
-        if re.search(padrao, texto_lower):
+        match = re.search(padrao, texto_lower)
+        if match:
+            trace(
+                "guard", "prompt_injection_detected",
+                padrao=padrao,
+                trecho=texto_lower[max(0, match.start() - 20):match.end() + 20],
+            )
             raise ValueError(
                 "Texto do currículo contém trechos suspeitos de tentativa de "
                 "manipular a avaliação -- revise o conteúdo e reenvie."

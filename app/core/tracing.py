@@ -8,9 +8,10 @@ from app.core.logging import get_logger
 _logger = get_logger("trace")
 
 _COLORS = {
-    "rag": "\033[36m",   # ciano
-    "chat": "\033[35m",  # magenta
-    "llm": "\033[33m",   # amarelo
+    "rag": "\033[36m",    # ciano
+    "chat": "\033[35m",   # magenta
+    "llm": "\033[33m",    # amarelo
+    "guard": "\033[31m",  # vermelho -- rejeições de guardrail (ex.: prompt injection)
 }
 _RESET = "\033[0m"
 
