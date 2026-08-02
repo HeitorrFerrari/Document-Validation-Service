@@ -33,6 +33,8 @@ def _build_chunks(
         f"desejáveis {job_requirements.desired_skills}, "
         f"mín. {job_requirements.min_years_experience} anos de experiência"
     )
+    if job_requirements.description:
+        chunks.append(f"Descrição da vaga: {job_requirements.description}")
 
     for rs in validation.requirement_scores:
         chunks.append(

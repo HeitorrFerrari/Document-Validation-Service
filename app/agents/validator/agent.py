@@ -22,7 +22,10 @@ _SYSTEM_PROMPT = build_system_prompt(
     "'Anos de experiência (já calculado)' fornecido abaixo -- "
     "não estime a partir das datas brutas do currículo. "
     "Use APENAS as skills e experiências presentes no currículo "
-    "-- nunca assuma competência que não está listada."
+    "-- nunca assuma competência que não está listada. "
+    "Se a vaga tiver 'description', use-a como contexto qualitativo "
+    "(senioridade esperada, responsabilidades, escopo) -- ela não é um "
+    "critério pontuado à parte, mas pode ajudar a interpretar os demais."
 )
 
 

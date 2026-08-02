@@ -62,6 +62,7 @@ analyzeForm.addEventListener("submit", async (event) => {
 
   const job = {
     title: document.getElementById("title").value.trim(),
+    description: document.getElementById("description").value.trim() || null,
     required_skills: splitSkills(document.getElementById("required_skills").value),
     desired_skills: splitSkills(document.getElementById("desired_skills").value),
     min_years_experience: Number(document.getElementById("min_years_experience").value),
