@@ -1,0 +1,35 @@
+"""
+Configuração centralizada (Fase 0+).
+Substitui os.getenv espalhado pelos módulos -- toda env var lida aqui.
+"""
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+class Settings:
+    # OpenAI
+    openai_api_key: str = os.getenv("OPENAI_API_KEY")
+    openai_main_model: str = os.getenv("OPENAI_MAIN_MODEL", "gpt-4o-mini")
+    openai_temperature: float = float(os.getenv("OPENAI_TEMPERATURE", "0"))
+
+    # Mongo (Fase 6)
+    mongo_uri: str = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+    mongo_db: str = os.getenv("MONGO_DB", "validador_cv")
+
+    # Redis / Celery (Fase 7)
+    redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    celery_broker_url: str = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+    celery_backend: str = os.getenv("CELERY_BACKEND", "redis://localhost:6379/0")
+
+    # Qdrant (Fase 4)
+    qdrant_url: str = os.getenv("QDRANT_URL", "http://localhost:6333")
+    qdrant_collection: str = os.getenv("QDRANT_COLLECTION", "curriculos")
+
+    # Guardrails (Fase 3)
+    max_upload_mb: int = int(os.getenv("MAX_UPLOAD_MB", "10"))
+    max_text_chars: int = int(os.getenv("MAX_TEXT_CHARS", "100000"))
+
+
+settings = Settings()
