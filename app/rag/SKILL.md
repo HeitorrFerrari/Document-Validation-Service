@@ -54,4 +54,3 @@ ficaram na collection antiga — não migram automaticamente, ver `DECISIONS.md`
 existe mas nunca é chamado de lugar nenhum — sem limpeza/TTL de sessão, o Qdrant cresce
 indefinidamente.
 
-teste
