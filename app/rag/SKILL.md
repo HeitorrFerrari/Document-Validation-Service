@@ -53,3 +53,5 @@ hardcoded `"cv_chat_session"`/`"http://localhost:6333"`). Sessões ingeridas ant
 ficaram na collection antiga — não migram automaticamente, ver `DECISIONS.md`. `delete_session`
 existe mas nunca é chamado de lugar nenhum — sem limpeza/TTL de sessão, o Qdrant cresce
 indefinidamente.
+
+teste
