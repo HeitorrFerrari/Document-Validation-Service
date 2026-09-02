@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app.core.tracing import trace
-from app.evaluation.dataset import DATASET, EvalCase
+from app.evaluation.dataset import DATASET, EvalCase, filtrar_dataset
 from app.graph.graph import app_graph
 from app.judge.judge import evaluate as judge_evaluate
 from app.schemas.eval_result import EvalCaseResult, EvalRunResult
@@ -73,7 +73,16 @@ def _montar_resultado(casos: list[EvalCaseResult]) -> EvalRunResult:
     )
 
 
-def run_evaluation(dataset: list[EvalCase] = DATASET) -> EvalRunResult:
+def run_evaluation(
+    dataset: list[EvalCase] = DATASET,
+    ids: list[str] | None = None,
+) -> EvalRunResult:
+    """Roda o harness contra `dataset`. Se `ids` for passado, roda só os casos
+    com esses `id`s (ver EvalCase.id) -- útil pra reexecutar um caso isolado
+    sem pagar o pipeline inteiro do dataset."""
+    if ids:
+        dataset = filtrar_dataset(ids)
+
     casos_resultado: list[EvalCaseResult] = []
 
     for caso in dataset:
@@ -131,10 +140,13 @@ def _imprimir_resumo(resultado: EvalRunResult) -> None:
 
 
 if __name__ == "__main__":
+    import sys
+
     from dotenv import load_dotenv
 
     load_dotenv()
-    resultado = run_evaluation()
+    ids_cli = sys.argv[1:] or None  # `python -m app.evaluation.evaluation match-forte`
+    resultado = run_evaluation(ids=ids_cli)
     caminho = salvar_resultado(resultado)
     _imprimir_resumo(resultado)
     print(f"\nResultado salvo em: {caminho}")

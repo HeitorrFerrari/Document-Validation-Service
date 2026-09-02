@@ -11,6 +11,7 @@ from app.schemas.job_requirements import JobRequirements
 
 @dataclass
 class EvalCase:
+    id: str
     nome: str
     resume_text: str
     job_requirements: JobRequirements
@@ -21,6 +22,7 @@ class EvalCase:
 
 DATASET: list[EvalCase] = [
     EvalCase(
+        id="match-forte",
         nome="match forte",
         resume_text="""
             Ana Beatriz Souza
@@ -49,6 +51,7 @@ DATASET: list[EvalCase] = [
         elegivel_esperado=True,
     ),
     EvalCase(
+        id="match-fraco",
         nome="match fraco",
         resume_text="""
             Carlos Eduardo Lima
@@ -75,6 +78,7 @@ DATASET: list[EvalCase] = [
         elegivel_esperado=False,
     ),
     EvalCase(
+        id="match-parcial-so-obrigatorias",
         nome="match parcial - só obrigatórias",
         resume_text="""
             Fernanda Alves Costa
@@ -101,6 +105,7 @@ DATASET: list[EvalCase] = [
         elegivel_esperado=False,
     ),
     EvalCase(
+        id="borda-experiencia-no-minimo",
         nome="borda - experiência exatamente no mínimo",
         resume_text="""
             Ricardo Nunes Pereira
@@ -126,6 +131,7 @@ DATASET: list[EvalCase] = [
         elegivel_esperado=True,
     ),
     EvalCase(
+        id="borda-formacao-abaixo-do-minimo",
         nome="borda - formação abaixo do mínimo, resto forte",
         resume_text="""
             Juliana Martins Rocha
@@ -153,6 +159,7 @@ DATASET: list[EvalCase] = [
         elegivel_esperado=False,
     ),
     EvalCase(
+        id="sem-experiencia-recem-formado-vaga-senior",
         nome="sem experiência - recém-formado pra vaga sênior",
         resume_text="""
             Pedro Henrique Alves
@@ -178,3 +185,23 @@ DATASET: list[EvalCase] = [
         elegivel_esperado=False,
     ),
 ]
+
+
+def filtrar_dataset(ids: list[str] | None) -> list[EvalCase]:
+    """Retorna só os casos cujo `id` está em `ids`, preservando a ordem do
+    DATASET. `ids` vazio ou None devolve o dataset inteiro. Levanta ValueError
+    se algum id não existir -- pra rodar um caso isolado sem falhar silencioso
+    por causa de typo no id."""
+    if not ids:
+        return DATASET
+
+    conhecidos = {caso.id for caso in DATASET}
+    desconhecidos = [i for i in ids if i not in conhecidos]
+    if desconhecidos:
+        raise ValueError(
+            f"id(s) de caso inexistente(s): {desconhecidos}. "
+            f"disponíveis: {sorted(conhecidos)}"
+        )
+
+    alvo = set(ids)
+    return [caso for caso in DATASET if caso.id in alvo]
