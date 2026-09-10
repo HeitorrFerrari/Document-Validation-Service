@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversas passadas — Validador de Currículo</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Triagem com IA</p>
+        <h1>Validador de Currículo</h1>
+      </div>
+      <nav class="site-nav" aria-label="Navegação principal">
+        <a href="/">Início</a>
+        <a href="/analise.html">Nova análise</a>
+        <a href="/conversas.html" aria-current="page">Conversas passadas</a>
+      </nav>
+    </header>
+
+    <main class="workspace">
+      <section class="panel intake-panel" aria-labelledby="sessions-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Histórico</p>
+            <h2 id="sessions-title">Sessões analisadas</h2>
+          </div>
+          <span class="step-badge" id="sessions-count">--</span>
+        </div>
+
+        <div id="sessions-list" aria-live="polite">
+          <div class="empty-state">
+            <strong>Carregando sessões...</strong>
+            <span>Buscando as análises já processadas.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="main-column">
+        <section class="hero-panel" aria-label="Sessão selecionada">
+          <div>
+            <p class="eyebrow">Sessão</p>
+            <h2 id="session-heading">Selecione uma sessão para revisar e conversar.</h2>
+          </div>
+          <div class="metric-strip">
+            <div>
+              <strong id="metric-score">--</strong>
+              <span>Score</span>
+            </div>
+            <div>
+              <strong id="metric-status">--</strong>
+              <span>Elegibilidade</span>
+            </div>
+            <div>
+              <strong id="metric-session">--</strong>
+              <span>Sessão</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel hidden" id="result-card" aria-labelledby="result-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Resultado</p>
+              <h2 id="result-title">Parecer da análise</h2>
+            </div>
+            <span id="eligible-badge" class="eligible-badge">--</span>
+          </div>
+
+          <div class="score-layout">
+            <div class="score-ring" aria-label="Score geral">
+              <span id="score-badge">--</span>
+              <small>de 100</small>
+            </div>
+            <div>
+              <h3>Raciocínio</h3>
+              <p id="reasoning" class="muted"></p>
+            </div>
+          </div>
+
+          <div class="result-block">
+            <h3>Critérios avaliados</h3>
+            <ul id="requirement-scores" class="criteria-list"></ul>
+          </div>
+        </section>
+
+        <section class="panel chat-panel" id="chat-card" aria-labelledby="chat-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Chat contextual</p>
+              <h2 id="chat-title">Pergunte sobre a validação</h2>
+            </div>
+            <span class="step-badge">RAG</span>
+          </div>
+
+          <div id="chat-log" aria-live="polite">
+            <div class="empty-state">
+              <strong>Nenhuma sessão aberta</strong>
+              <span>Escolha uma sessão à esquerda para retomar a conversa sobre aquele resultado.</span>
+            </div>
+          </div>
+
+          <form id="chat-form">
+            <input type="text" id="question" placeholder="Pergunte sobre a validação..." required disabled>
+            <button type="submit" aria-label="Enviar pergunta" disabled>Enviar</button>
+          </form>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="/conversas.js"></script>
+</body>
+</html>
