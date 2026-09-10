@@ -588,7 +588,8 @@ button:disabled {
     flex-direction: column;
   }
 
-  .topbar-actions {
+  .topbar-actions,
+  .site-nav {
     width: 100%;
   }
 
