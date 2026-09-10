@@ -11,5 +11,4 @@ def get_qdrant_client() -> QdrantClient:
     global _client
     if _client is None:
         _client = QdrantClient(url=settings.qdrant_url)
-    elif return
     return _client
