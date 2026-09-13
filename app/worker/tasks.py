@@ -7,6 +7,7 @@ from celery import Celery
 
 from app.core.config import settings
 from app.core.tracing import trace
+from app.db.repositories.feedback_repository import save_feedback
 from app.db.repositories.judge_repository import save_judgement
 from app.db.repositories.resume_repository import save_resume
 from app.db.repositories.validation_repository import save_validation_result
@@ -16,6 +17,7 @@ from app.graph.graph import app_graph
 from app.guard.guard import check_document_format, check_extracted_text, check_prompt_injection
 from app.judge.judge import evaluate as judge_evaluate
 from app.rag.ingest import ingest_session
+from app.schemas.feedback import Feedback
 from app.schemas.job_requirements import JobRequirements
 
 celery_app = Celery("validador_cv", broker=settings.celery_broker_url, backend=settings.celery_backend)
@@ -51,6 +53,9 @@ def analisar_curriculo_task(caminho_arquivo: str, job_json: str, job_id: str) ->
     resultado.resume_id = resume_id
     resultado.job_id = job_id
     validation_id = save_validation_result(resultado)
+    # Sem isso o feedback só existiria no result backend do Celery, que expira
+    # -- o histórico (`/cv/sessions/{id}`) lê do Mongo e ficaria sem ele.
+    save_feedback(Feedback(text=feedback, validation_id=validation_id))
 
     try:
         julgamento = judge_evaluate(resume, job_requirements, resultado, feedback)

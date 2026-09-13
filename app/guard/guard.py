@@ -25,6 +25,19 @@ _PADROES_PROMPT_INJECTION = [
     r"d[êe]\s+nota\s+(m[aá]xima|100)",
     r"aprovad[oa]\s+automaticamente",
     r"score\s*[:=]?\s*100",
+    r"is_eligible\s*[:=]?\s*true",
+    r"revele\s+(o\s+)?(seu\s+)?prompt",
+    r"reveal\s+(your\s+)?(system\s+)?prompt",
+    r"mostre\s+suas\s+instru[çc][õo]es",
+    r"show\s+(me\s+)?your\s+instructions",
+    r"\bjailbreak\b",
+    r"prompt\s+injection",
+    r"voc[êe]\s+n[ãa]o\s+tem\s+(mais\s+)?restri[çc][õo]es",
+    r"you\s+have\s+no\s+restrictions",
+    r"n[ãa]o\s+aplique\s+(nenhum\s+)?filtro",
+    r"do\s+not\s+apply\s+any\s+filter",
+    r"contorne\s+(as\s+)?regras",
+    r"bypass\s+(the\s+)?rules",
 ]
 
 

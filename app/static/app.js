@@ -18,6 +18,7 @@ const fileHint = document.getElementById("file-hint");
 const metricScore = document.getElementById("metric-score");
 const metricStatus = document.getElementById("metric-status");
 const metricSession = document.getElementById("metric-session");
+const historyLink = document.getElementById("history-link");
 
 let chatMessages = [];
 let pollTimer = null;
@@ -78,6 +79,7 @@ analyzeForm.addEventListener("submit", async (event) => {
 
   analyzeButton.disabled = true;
   resultCard.classList.add("hidden");
+  historyLink.classList.add("hidden");
   metricScore.textContent = "--";
   metricSession.textContent = "--";
   sessionIdInput.value = "";
@@ -183,6 +185,10 @@ function renderResult(result) {
   resultCard.classList.remove("hidden");
 
   sessionIdInput.value = result.session_id || "";
+  if (result.session_id) {
+    historyLink.href = `/conversas.html?session=${encodeURIComponent(result.session_id)}`;
+    historyLink.classList.remove("hidden");
+  }
   clearChat();
 }
 
