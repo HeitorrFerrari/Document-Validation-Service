@@ -1,4 +1,5 @@
 from bson import ObjectId
+from bson.errors import InvalidId
 
 from app.db.mongo import db
 from app.schemas.job_requirements import JobRequirements
@@ -12,7 +13,11 @@ def save_job(job: JobRequirements) -> str:
 
 
 def get_job(job_id: str) -> JobRequirements | None:
-    documento = collection.find_one({"_id": ObjectId(job_id)})
+    try:
+        oid = ObjectId(job_id)
+    except InvalidId:
+        return None
+    documento = collection.find_one({"_id": oid})
     if documento is None:
         return None
     documento.pop("_id")

@@ -8,6 +8,7 @@ from celery.result import AsyncResult
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from app.core.config import settings
+from app.db.repositories.feedback_repository import get_feedback
 from app.db.repositories.job_repository import get_job, save_job
 from app.db.repositories.resume_repository import get_resume
 from app.db.repositories.validation_repository import get_validation_result, list_validations
@@ -72,11 +73,14 @@ async def get_session(session_id: str):
 
     job = get_job(validation.job_id) if validation.job_id else None
     resume = get_resume(validation.resume_id) if validation.resume_id else None
+    feedback = get_feedback(session_id)
     return {
         "session_id": session_id,
         "validation": validation.model_dump(),
         "job": job.model_dump() if job else None,
         "candidate_name": resume.name if resume else None,
+        # None em análises feitas antes do feedback passar a ser persistido.
+        "feedback": feedback.text if feedback else None,
     }
 
 
