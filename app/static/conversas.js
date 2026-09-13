@@ -9,6 +9,8 @@ const scoreBadge = document.getElementById("score-badge");
 const eligibleBadge = document.getElementById("eligible-badge");
 const reasoning = document.getElementById("reasoning");
 const requirementScores = document.getElementById("requirement-scores");
+const feedbackBlock = document.getElementById("feedback-block");
+const feedback = document.getElementById("feedback");
 const chatLog = document.getElementById("chat-log");
 const chatForm = document.getElementById("chat-form");
 const questionInput = document.getElementById("question");
@@ -170,6 +172,11 @@ function renderSession(data) {
     empty.textContent = "Nenhum critério detalhado foi retornado.";
     requirementScores.appendChild(empty);
   }
+
+  // Análises anteriores à persistência do feedback não têm o texto: esconde o
+  // bloco em vez de mostrar um placeholder vazio.
+  feedback.textContent = data.feedback || "";
+  feedbackBlock.classList.toggle("hidden", !data.feedback);
 
   resultCard.classList.remove("hidden");
   questionInput.disabled = false;
