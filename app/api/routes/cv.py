@@ -8,6 +8,7 @@ from celery.result import AsyncResult
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from app.core.config import settings
+from app.core.tracing import trace
 from app.db.repositories.feedback_repository import get_feedback
 from app.db.repositories.job_repository import get_job, save_job
 from app.db.repositories.resume_repository import get_resume
@@ -31,6 +32,7 @@ async def analyze_cv(file: UploadFile = File(...), job: str = Form(...)):
     conteudo = await file.read()
     max_bytes = settings.max_upload_mb * 1024 * 1024
     if len(conteudo) > max_bytes:
+        trace("api", "analyze_rejected", filename=file.filename, size_bytes=len(conteudo))
         raise HTTPException(
             status_code=413,
             detail=f"Arquivo excede o limite de {settings.max_upload_mb} MB.",
@@ -45,6 +47,7 @@ async def analyze_cv(file: UploadFile = File(...), job: str = Form(...)):
         tmp_path = tmp.name
 
     task = analisar_curriculo_task.delay(tmp_path, job, job_id)
+    trace("api", "analyze_dispatched", job_id=job_id, task_id=task.id, filename=file.filename)
     return {"task_id": task.id, "job": job, "job_id": job_id}
 
 @router.get("/sessions")
@@ -69,6 +72,7 @@ async def list_sessions():
 async def get_session(session_id: str):
     validation = get_validation_result(session_id)
     if validation is None:
+        trace("api", "session_not_found", session_id=session_id)
         raise HTTPException(status_code=404, detail="Sessão de validação não encontrada.")
 
     job = get_job(validation.job_id) if validation.job_id else None

@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 
 from app.chats.chat_graph import chat_graph
+from app.core.tracing import trace
 from app.schemas.chat import ChatMessage, ChatRequest, ChatResponse
 
 router = APIRouter(prefix="/chat", tags=["chat"])
@@ -33,6 +34,7 @@ async def chat(session_id: str, req: ChatRequest):
             "validation": None,
         })
     except ValueError as erro:
+        trace("api", "chat_session_not_found", session_id=session_id, erro=str(erro))
         raise HTTPException(status_code=404, detail=str(erro))
 
     mensagens = [_to_chat_message(m) for m in resultado["messages"]]
