@@ -80,6 +80,7 @@ def check_document_format(path: str) -> str:
             if "word/document.xml" in arquivo_zip.namelist():
                 return "docx"
 
+    trace("guard", "unsupported_format", header=header.hex())
     raise ValueError("Formato de arquivo não suportado — envie um PDF ou DOCX válido.")
 
 
@@ -91,12 +92,14 @@ def check_extracted_text(text: str, min_length: int = 50) -> None:
     estoura contexto e custo de token.
     """
     if len(text.strip()) < min_length:
+        trace("guard", "text_too_short", chars=len(text.strip()), min_length=min_length)
         raise ValueError(
             "Texto extraído insuficiente -- documento pode estar vazio, "
             "corrompido, ou ser um scan sem camada de texto (precisa de OCR)."
         )
 
     if len(text) > settings.max_text_chars:
+        trace("guard", "text_too_long", chars=len(text), max_chars=settings.max_text_chars)
         raise ValueError(
             "Documento muito longo para análise -- envie um currículo de "
             "tamanho convencional."
