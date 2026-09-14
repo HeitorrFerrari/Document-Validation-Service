@@ -35,4 +35,9 @@ def build_feedback(result: ValidationResult) -> str:
             },
         ],
     )
+    trace(
+        "llm", "feedback",
+        model=settings.openai_main_model,
+        total_tokens=response.usage.total_tokens if response.usage else None,
+    )
     return response.choices[0].message.content
