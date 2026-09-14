@@ -12,6 +12,9 @@ _COLORS = {
     "chat": "\033[35m",   # magenta
     "llm": "\033[33m",    # amarelo
     "guard": "\033[31m",  # vermelho -- rejeições de guardrail (ex.: prompt injection)
+    "graph": "\033[32m",  # verde -- nós do pipeline de validação (extract/validation/feedback)
+    "worker": "\033[34m", # azul -- task Celery ponta a ponta
+    "api": "\033[37m",    # branco -- requests HTTP
 }
 _RESET = "\033[0m"
 

@@ -1,6 +1,7 @@
 from openai import OpenAI
 
 from app.core.config import settings
+from app.core.tracing import trace
 from app.prompts.base import build_system_prompt
 from app.schemas.extracted_resume import CurriculoExtraido
 
@@ -32,5 +33,10 @@ def extrair_curriculo(cv_texto: str) -> CurriculoExtraido:
             {"role": "user", "content": cv_texto},
         ],
         response_format=CurriculoExtraido,
+    )
+    trace(
+        "llm", "extract",
+        model=settings.openai_main_model,
+        total_tokens=response.usage.total_tokens if response.usage else None,
     )
     return response.choices[0].message.parsed
