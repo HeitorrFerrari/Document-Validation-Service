@@ -2,6 +2,7 @@ from openai import OpenAI
 
 from app.agents.validator.scoring import calcular_anos_experiencia
 from app.core.config import settings
+from app.core.tracing import trace
 from app.prompts.base import build_system_prompt
 from app.schemas.extracted_resume import CurriculoExtraido
 from app.schemas.job_requirements import JobRequirements
@@ -53,5 +54,10 @@ def validate_eligibility(resume: CurriculoExtraido, job: JobRequirements) -> Val
             },
         ],
         response_format=ValidationResult,
+    )
+    trace(
+        "llm", "validate",
+        model=settings.openai_main_model,
+        total_tokens=response.usage.total_tokens if response.usage else None,
     )
     return response.choices[0].message.parsed

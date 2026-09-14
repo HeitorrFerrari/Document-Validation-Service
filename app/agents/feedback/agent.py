@@ -1,6 +1,7 @@
 from openai import OpenAI
 
 from app.core.config import settings
+from app.core.tracing import trace
 from app.prompts.base import RH_PERSONA, build_system_prompt
 from app.schemas.validation_result import ValidationResult
 
