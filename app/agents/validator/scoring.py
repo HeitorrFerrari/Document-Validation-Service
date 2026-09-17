@@ -10,7 +10,6 @@ def _parse_periodo(data_str: str) -> datetime:
 
 DATA_FIM_ATUAL = {"atual", "presente", "atualmente", "current", "present"}
 
-
 def calcular_anos_experiencia(resume: CurriculoExtraido) -> float:
     total_meses = 0
     for exp in resume.experience:
