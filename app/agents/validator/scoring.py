@@ -8,7 +8,6 @@ def _parse_periodo(data_str: str) -> datetime:
     mes = int(partes[1]) if len(partes) > 1 else 1
     return datetime(ano, mes, 1)
 
-
 DATA_FIM_ATUAL = {"atual", "presente", "atualmente", "current", "present"}
 
 
