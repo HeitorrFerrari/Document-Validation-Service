@@ -2,7 +2,6 @@ from datetime import datetime
 
 from app.schemas.extracted_resume import CurriculoExtraido
 
-
 def _parse_periodo(data_str: str) -> datetime:
     partes = data_str.split('-')
     ano = int(partes[0])
