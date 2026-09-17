@@ -16,7 +16,6 @@ _SYSTEM_PROMPT = build_system_prompt(
     "invente, altere ou presuma informação que não esteja ali."
 )
 
-
 def build_feedback(result: ValidationResult) -> str:
     """
     Entrada: ValidationResult já calculado pelo agente validador.
