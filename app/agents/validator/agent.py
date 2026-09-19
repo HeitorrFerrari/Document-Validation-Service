@@ -10,6 +10,7 @@ from app.schemas.validation_result import ValidationResult
 
 client = OpenAI(api_key=settings.openai_api_key)
 
+
 _SYSTEM_PROMPT = build_system_prompt(
     "Você avalia se um candidato é elegível para uma vaga, "
     "comparando o currículo estruturado com os requisitos. "
