@@ -7,6 +7,7 @@ from app.schemas.validation_result import ValidationResult
 
 client = OpenAI(api_key=settings.openai_api_key)
 
+
 _SYSTEM_PROMPT = build_system_prompt(
     f"{RH_PERSONA} "
     "Sua função aqui é redigir o texto de feedback que explica ao "
