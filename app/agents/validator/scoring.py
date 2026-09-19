@@ -18,4 +18,5 @@ def calcular_anos_experiencia(resume: CurriculoExtraido) -> float:
         fim = _parse_periodo(exp.data_fim) if data_fim_valida else datetime.today()
         meses = (fim.year - inicio.year) * 12 + (fim.month - inicio.month)
         total_meses += max(meses, 0)
+
     return round(total_meses / 12, 1)
