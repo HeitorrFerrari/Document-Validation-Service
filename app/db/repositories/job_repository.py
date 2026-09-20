@@ -11,6 +11,7 @@ def save_job(job: JobRequirements) -> str:
     resultado = collection.insert_one(job.model_dump())
     return str(resultado.inserted_id)
 
+
 def get_job(job_id: str) -> JobRequirements | None:
     try:
         oid = ObjectId(job_id)
