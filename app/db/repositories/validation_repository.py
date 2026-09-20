@@ -4,6 +4,7 @@ from bson.errors import InvalidId
 from app.db.mongo import db
 from app.schemas.validation_result import ValidationResult
 
+
 collection = db["validations"]
 
 def save_validation_result(validation_result: ValidationResult) -> str:
