@@ -20,6 +20,7 @@ def list_validations(limit: int = 50) -> list[dict]:
     `session_id` (= `_id`) e da data de criação, que não estão no schema.
     O `_id` do Mongo carrega o timestamp de criação (`generation_time`).
     """
+
     documentos = collection.find().sort("_id", -1).limit(limit)
     sessoes = []
     for documento in documentos:
