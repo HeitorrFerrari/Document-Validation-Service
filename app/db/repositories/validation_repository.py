@@ -14,6 +14,7 @@ def save_validation_result(validation_result: ValidationResult) -> str:
 
 
 def list_validations(limit: int = 50) -> list[dict]:
+
     """
     Lista as validações mais recentes pro histórico de conversas do front.
     Retorna dict cru (não `ValidationResult`) porque a view precisa do
