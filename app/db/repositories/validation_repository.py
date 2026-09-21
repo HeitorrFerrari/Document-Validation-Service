@@ -36,6 +36,7 @@ def list_validations(limit: int = 50) -> list[dict]:
         })
     return sessoes
 
+
 def get_validation_result(validation_id: str) -> ValidationResult:
     try:
         oid = ObjectId(validation_id)
