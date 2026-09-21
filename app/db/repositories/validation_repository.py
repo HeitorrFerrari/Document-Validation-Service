@@ -8,6 +8,7 @@ from app.schemas.validation_result import ValidationResult
 collection = db["validations"]
 
 
+
 def save_validation_result(validation_result: ValidationResult) -> str:
     validation = collection.insert_one(validation_result.model_dump())
     return str(validation.inserted_id)
