@@ -28,7 +28,6 @@ async def disable_static_cache(request, call_next):
         response.headers["Expires"] = "0"
     return response
 
-
 app.include_router(requirements.router)
 app.include_router(cv.router)
 app.include_router(chat.router)
