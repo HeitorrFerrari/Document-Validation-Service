@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from app.api.routes import chat, cv, evaluation
+
 from app.api.routes.input import requirements
 
 
