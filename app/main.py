@@ -36,5 +36,4 @@ app.include_router(requirements.router)
 app.include_router(cv.router)
 app.include_router(chat.router)
 app.include_router(evaluation.router)
-
 app.mount("/", StaticFiles(directory="app/static", html=True), name="static")
