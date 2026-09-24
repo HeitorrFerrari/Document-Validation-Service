@@ -15,6 +15,7 @@ from app.api.routes.input import requirements
 app = FastAPI(title="Validador de Currículo")
 
 
+
 @app.middleware("http")
 async def disable_static_cache(request, call_next):
     response = await call_next(request)
