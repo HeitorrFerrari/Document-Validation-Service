@@ -13,8 +13,6 @@ from app.api.routes import chat, cv, evaluation
 
 from app.api.routes.input import requirements
 
-
-
 app = FastAPI(title="Validador de Currículo")
 
 @app.middleware("http")
