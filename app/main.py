@@ -27,7 +27,6 @@ async def disable_static_cache(request, call_next):
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
 
-
     return response
 
 
